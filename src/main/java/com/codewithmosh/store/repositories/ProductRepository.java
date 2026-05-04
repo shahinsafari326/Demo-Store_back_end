@@ -1,7 +1,32 @@
 package com.codewithmosh.store.repositories;
 
+import com.codewithmosh.store.dtos.ProductDto;
 import com.codewithmosh.store.entities.Product;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+
+import java.util.List;
 
 public interface ProductRepository extends JpaRepository<Product, Long> {
+    /**
+     * Spring splits it like this:
+     *
+     * findBy → start of query
+     * Category → field in Product
+     * _ → navigate into that object
+     * Id → field inside Category
+     * @param categoryId
+     * @return
+     */
+    @EntityGraph(attributePaths = "category")
+    List<Product> findByCategory_Id(Byte categoryId);
+
+
+    @EntityGraph(attributePaths = "category")
+    @Query("select p from Product p")
+    List<Product> findAllWithCategory();
 }
+
+
+
