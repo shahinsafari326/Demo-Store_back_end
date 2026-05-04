@@ -1,5 +1,6 @@
 package com.codewithmosh.store.controllers;
 
+import com.codewithmosh.store.dtos.RegisterUserRequest;
 import com.codewithmosh.store.dtos.UserDto;
 import com.codewithmosh.store.entities.User;
 import com.codewithmosh.store.mappers.UserMapper;
@@ -8,18 +9,18 @@ import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.List;
 import java.util.Set;
 
 @RestController
 @AllArgsConstructor
-@RequestMapping("/users")
 public class UserController {
     private UserRepository userRepository;
     private UserMapper userMapper;
 
-    @RequestMapping
+    @GetMapping("/users")
     public List<UserDto> getAllUsers (@RequestParam (required = false, defaultValue = "", name = "sort") String sort) {
         // validate sort param, only name and email is allowed, name is default
 
@@ -32,7 +33,7 @@ public class UserController {
                 .toList();
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/users/{id}")
     public ResponseEntity<UserDto> getUserById(@PathVariable Long id) {
         var user = userRepository.findById(id).orElse(null);
         if (user == null) {
@@ -40,5 +41,21 @@ public class UserController {
         } else {
             return ResponseEntity.ok(userMapper.toDto(user));
         }
+    }
+
+    @PostMapping("/users")
+    public ResponseEntity<UserDto> createUser(
+            UriComponentsBuilder  uriComponentsBuilder,
+            @RequestBody RegisterUserRequest request) {
+
+        // convert request body to user
+        User user = userMapper.toEntity(request);
+        // save to database
+        User result = userRepository.save(user);
+        // convert to dto for returning
+        var userDto = userMapper.toDto(result);
+        var uri = uriComponentsBuilder.path("/users/{id}").buildAndExpand(result.getId()).toUri();
+        return ResponseEntity.created(uri).body(userDto);
+
     }
 }
