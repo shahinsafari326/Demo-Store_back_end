@@ -90,7 +90,7 @@ public class UserController {
     }
 
     @PostMapping("/{id}")
-    public ResponseEntity<Void> createUser(@PathVariable (name = "id") Long id,
+    public ResponseEntity<Void> updateUserPassword(@PathVariable (name = "id") Long id,
             @RequestBody UpdateUserPasswordRequest request) {
 
         var  user = userRepository.findById(id).orElse(null);
