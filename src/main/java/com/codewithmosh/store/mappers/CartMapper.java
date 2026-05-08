@@ -13,6 +13,7 @@ import org.mapstruct.MappingTarget;
 // used as interface as map strut automatically implements this class at run time!
 @Mapper (componentModel = "spring")
 public interface CartMapper {
+    @Mapping(target = "totalPrice", expression = "java(cart.getTotalPrice())")
     CartDto toDto(Cart cart);
 
     @Mapping(target = "totalPrice", expression = "java(cartItem.getTotalPrice())")
