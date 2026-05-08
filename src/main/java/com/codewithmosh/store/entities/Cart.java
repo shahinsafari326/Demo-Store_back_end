@@ -60,4 +60,8 @@ public class Cart {
         }
 
     }
+
+    public void clearCart() {
+        this.getItems().clear();
+    }
 }
