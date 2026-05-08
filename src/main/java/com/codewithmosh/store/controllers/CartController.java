@@ -83,4 +83,26 @@ public class CartController {
         return ResponseEntity.ok(cartMapper.toCartItemDto(cartItem));
 
     }
+
+    @DeleteMapping ("/{cartId}/items/{productId}")
+    public ResponseEntity<?> deleteCartItem(@PathVariable UUID cartId, @PathVariable Long productId) {
+        var cart = cartRepository.findById(cartId).orElse(null);
+        if (cart == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+                    Map.of("error", "cart not found")
+            );
+        }
+        var cartItem = cart.getCartItem(productId);
+        if (cartItem == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+                    Map.of("error", "cart item not found")
+            );
+        }
+
+        cart.removeItemFromCart(productId);
+        cartRepository.save(cart);
+        return ResponseEntity.noContent().build();
+
+    }
+
 }
