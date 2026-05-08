@@ -47,19 +47,7 @@ public class CartController {
         Product product = productRepository.findById(addItemToCartRequest.getProductId()).orElse(null);
         if (product == null) return ResponseEntity.badRequest().build();
 
-        // find cart item
-        var cartItem = cart.getItems().stream().filter(item ->
-                item.getProduct().getId().equals(product.getId())).findFirst().orElse(null);
-        if (cartItem != null) {
-            cartItem.setQuantity(cartItem.getQuantity() + 1);
-        } else {
-            // create new cart item
-            cartItem = new CartItem();
-            cartItem.setProduct(product);
-            cartItem.setQuantity(1);
-            cartItem.setCart(cart);
-            cart.getItems().add(cartItem);
-        }
+        var cartItem = cart.addItemToCart(product);
         cartRepository.save(cart);
         return ResponseEntity.status(HttpStatus.CREATED).body(cartMapper.toCartItemDto(cartItem));
     }
@@ -83,8 +71,7 @@ public class CartController {
             );
         }
         // find cart item
-        var cartItem = cart.getItems().stream().filter(item ->
-                item.getProduct().getId().equals(productId)).findFirst().orElse(null);
+        var cartItem = cart.getCartItem(productId);
         if (cartItem == null) {
              return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
                     Map.of("error", "cart item not found")

@@ -32,4 +32,23 @@ public class Cart {
         return items.stream().map(CartItem::getTotalPrice).reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
+    public CartItem getCartItem(Long productId) {
+        return items.stream().filter(item -> item.getId().equals(productId)).findFirst().orElse(null);
+    }
+
+    public CartItem addItemToCart(Product product) {
+        // find cart item
+        var cartItem = getCartItem(product.getId());
+        if (cartItem != null) {
+            cartItem.setQuantity(cartItem.getQuantity() + 1);
+        } else {
+            // create new cart item
+            cartItem = new CartItem();
+            cartItem.setProduct(product);
+            cartItem.setQuantity(1);
+            cartItem.setCart(this);
+            getItems().add(cartItem);
+        }
+        return cartItem;
+    }
 }
