@@ -33,7 +33,7 @@ public class Cart {
     }
 
     public CartItem getCartItem(Long productId) {
-        return items.stream().filter(item -> item.getId().equals(productId)).findFirst().orElse(null);
+        return items.stream().filter(item -> item.getProduct().getId().equals(productId)).findFirst().orElse(null);
     }
 
     public CartItem addItemToCart(Product product) {
