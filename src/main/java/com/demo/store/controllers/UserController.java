@@ -12,6 +12,8 @@ import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -25,6 +27,7 @@ import java.util.Set;
 public class UserController {
     private UserRepository userRepository;
     private UserMapper userMapper;
+    private final PasswordEncoder passwordEncoder;
 
     @GetMapping
     public List<UserDto> getAllUsers (@RequestParam (required = false, defaultValue = "", name = "sort") String sort) {
@@ -63,6 +66,8 @@ public class UserController {
 
         // convert request body to user
         User user = userMapper.toEntity(request);
+        //hash password
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
         // save to database
         User result = userRepository.save(user);
         // convert to dto for returning
