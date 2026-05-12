@@ -5,6 +5,7 @@ import com.demo.store.exceptions.CartNotFoundException;
 import com.demo.store.exceptions.ProductNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -38,5 +39,10 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(CartItemNotFoundException.class)
     public ResponseEntity<Map<String,String>> handleCartItemNotFoundException() {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "Cart item not found"));
+    }
+
+    @ExceptionHandler(BadCredentialsException.class)
+    public ResponseEntity<Void> handleBadCredentialsException() {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
     }
 }
