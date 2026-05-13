@@ -27,9 +27,14 @@ public class AuthController {
     public ResponseEntity<JwtResponse> loginUser(
             @Valid @RequestBody LoginUserRequest request) {
 
+        // verify login
         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
 
-        var token = jwtService.generateToken(request.getEmail());
+
+        // generate token
+        var user  = userRepository.findByEmail(request.getEmail()).orElseThrow();
+
+        var token = jwtService.generateToken(user);
         return ResponseEntity.ok(new JwtResponse(token));
 
     }

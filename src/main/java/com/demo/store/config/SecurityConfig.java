@@ -1,6 +1,8 @@
 package com.demo.store.config;
 
+import com.demo.store.filters.JwtAuthenticationFilter;
 import com.demo.store.services.UserService;
+import jakarta.servlet.Filter;
 import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -18,6 +20,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 
 @Configuration
@@ -25,7 +28,9 @@ import org.springframework.security.web.server.SecurityWebFilterChain;
 @EnableMethodSecurity
 @AllArgsConstructor
 public class SecurityConfig {
-    private UserDetailsService userService;
+    private UserService userService;
+    private JwtAuthenticationFilter JwtAuthenticationFilter;
+
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -58,7 +63,9 @@ public class SecurityConfig {
                         .requestMatchers("/carts/**").permitAll() // only allow carts to be public
                         .requestMatchers(HttpMethod.POST, "/users").permitAll()
                         .requestMatchers(HttpMethod.POST, "/auth/**").permitAll()
-                        .anyRequest().authenticated() );
+                        .anyRequest().authenticated()
+                )
+                .addFilterBefore(JwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
 }

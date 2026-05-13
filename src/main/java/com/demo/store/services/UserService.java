@@ -16,6 +16,12 @@ public class UserService implements UserDetailsService {
 
     private final UserRepository userRepository;
 
+    /**
+     * Used for logging in. AuthenticationProvider uses this internally which is used by authenticationManager!
+     * @param email the username identifying the user whose data is required.
+     * @return Spring User object!
+     * @throws UsernameNotFoundException
+     */
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         var user = userRepository.findByEmail(email).orElseThrow(() -> new UsernameNotFoundException("User not found"));
