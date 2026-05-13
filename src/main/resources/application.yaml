@@ -7,3 +7,6 @@ spring:
     password: warehouse
   jpa:
     show-sql: true
+
+  jwt:
+    secret:${JWT_SECRET}

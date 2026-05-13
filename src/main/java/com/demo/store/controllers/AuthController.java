@@ -1,10 +1,11 @@
 package com.demo.store.controllers;
 
+import com.demo.store.dtos.JwtResponse;
 import com.demo.store.dtos.*;
 import com.demo.store.repositories.UserRepository;
+import com.demo.store.services.JwtService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -18,17 +19,18 @@ public class AuthController {
     private UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
-
+    private final JwtService jwtService;
 
 
 
     @PostMapping("/login")
-    public ResponseEntity<?> loginUser(
+    public ResponseEntity<JwtResponse> loginUser(
             @Valid @RequestBody LoginUserRequest request) {
 
         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
 
-        return ResponseEntity.ok().build();
+        var token = jwtService.generateToken(request.getEmail());
+        return ResponseEntity.ok(new JwtResponse(token));
 
     }
 
