@@ -1,31 +1,43 @@
 package com.demo.store.services;
 
+import com.demo.store.config.JwtConfig;
 import com.demo.store.entities.User;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
 
 @Service
+@AllArgsConstructor
 public class JwtService {
 
-    @Value("${spring.jwt}")
-    private String secret;
+    private final JwtConfig jwtConfig;
 
-    public String generateToken(User user) {
-        final long tokenExpiration = System.currentTimeMillis() + 1000 * 60 * 60 * 24; // 1 day in millis
+
+    private String getToken(User user, long tokenExpiration) {
         return Jwts.builder()
                 .subject(user.getId().toString())
                 .claim("name", user.getName())
                 .claim("email", user.getEmail())
                 .issuedAt(new Date())
                 .expiration(new Date(tokenExpiration))
-                .signWith(Keys.hmacShaKeyFor(secret.getBytes()))
+                .signWith(jwtConfig.getSecretKey())
                 .compact();
+    }
+
+    public String generateRefreshToken(User user) {
+        final long tokenExpiration = jwtConfig.getRefreshTokenExpiration();
+        return getToken(user, tokenExpiration);
+    }
+
+    public String generateAccessToken(User user) {
+        final long tokenExpiration = jwtConfig.getAccessTokenExpiration();
+        return getToken(user, tokenExpiration);
     }
 
     public boolean validateToken(String token) {
@@ -40,7 +52,7 @@ public class JwtService {
 
     private Claims getClaims(String token) {
         return Jwts.parser()
-                .verifyWith(Keys.hmacShaKeyFor(secret.getBytes()))
+                .verifyWith(jwtConfig.getSecretKey())
                 .build().parseSignedClaims(token)
                 .getPayload();
 

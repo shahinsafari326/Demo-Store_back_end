@@ -6,6 +6,7 @@ import com.demo.store.repositories.UserRepository;
 import com.demo.store.services.JwtService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -34,8 +35,23 @@ public class AuthController {
         // generate token
         var user  = userRepository.findByEmail(request.getEmail()).orElseThrow();
 
-        var token = jwtService.generateToken(user);
+        var token = jwtService.generateAccessToken(user);
         return ResponseEntity.ok(new JwtResponse(token));
+
+    }
+
+    @PostMapping("/refresh")
+    public ResponseEntity<JwtResponse> refreshToken(
+            @CookieValue(value = "refreshToken") String tokenToRefresh) {
+
+        if (!jwtService.validateToken(tokenToRefresh)){
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        // generate new token if refreshToken still valid
+        var userId =  jwtService.getUserIdFromToken(tokenToRefresh);
+        var user = userRepository.findById(userId).orElseThrow();
+        var accessToken = jwtService.generateAccessToken(user);
+        return ResponseEntity.ok(new JwtResponse(accessToken));
 
     }
 
