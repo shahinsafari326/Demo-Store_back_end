@@ -4,6 +4,7 @@ import com.demo.store.dtos.RegisterUserRequest;
 import com.demo.store.dtos.UpdateUserPasswordRequest;
 import com.demo.store.dtos.UpdateUserRequest;
 import com.demo.store.dtos.UserDto;
+import com.demo.store.entities.Role;
 import com.demo.store.entities.User;
 import com.demo.store.mappers.UserMapper;
 import com.demo.store.repositories.UserRepository;
@@ -68,6 +69,9 @@ public class UserController {
         User user = userMapper.toEntity(request);
         //hash password
         user.setPassword(passwordEncoder.encode(user.getPassword()));
+
+        //assign role
+        user.setRole(Role.USER);
         // save to database
         User result = userRepository.save(user);
         // convert to dto for returning

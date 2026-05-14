@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
@@ -54,6 +55,13 @@ public class AuthController {
         return ResponseEntity.ok(new JwtResponse(accessToken));
 
     }
+
+    /*@GetMapping("/me")
+    public ResponseEntity<UserDto> refreshToken() {
+            var authentication = SecurityContextHolder.getContext().getAuthentication();
+            var principal = authentication.getPrincipal();
+
+    }*/
 
 
 
