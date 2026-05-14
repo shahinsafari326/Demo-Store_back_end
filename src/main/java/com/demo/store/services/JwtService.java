@@ -20,13 +20,14 @@ public class JwtService {
 
 
     private String getToken(User user, long tokenExpiration) {
+        long expirationTime = System.currentTimeMillis() + (tokenExpiration * 1000);
         return Jwts.builder()
                 .subject(user.getId().toString())
                 .claim("name", user.getName())
                 .claim("email", user.getEmail())
                 .claim("role", user.getRole())
                 .issuedAt(new Date())
-                .expiration(new Date(tokenExpiration))
+                .expiration(new Date(expirationTime))
                 .signWith(jwtConfig.getSecretKey())
                 .compact();
     }

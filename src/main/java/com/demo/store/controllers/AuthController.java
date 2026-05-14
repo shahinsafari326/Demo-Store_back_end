@@ -56,15 +56,4 @@ public class AuthController {
 
     }
 
-    /*@GetMapping("/me")
-    public ResponseEntity<UserDto> refreshToken() {
-            var authentication = SecurityContextHolder.getContext().getAuthentication();
-            var principal = authentication.getPrincipal();
-
-    }*/
-
-
-
-
-
 }
