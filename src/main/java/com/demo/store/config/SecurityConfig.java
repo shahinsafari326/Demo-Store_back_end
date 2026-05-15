@@ -1,5 +1,6 @@
 package com.demo.store.config;
 
+import com.demo.store.entities.Role;
 import com.demo.store.filters.JwtAuthenticationFilter;
 import com.demo.store.services.UserService;
 import jakarta.servlet.Filter;
@@ -64,14 +65,18 @@ public class SecurityConfig {
                 .authorizeHttpRequests(c -> c
                         .requestMatchers("/carts/**").permitAll() // only allow carts to be public
                         .requestMatchers(HttpMethod.POST, "/users").permitAll()
+                        .requestMatchers("/admin/**").hasRole(Role.ADMIN.name())
                         .requestMatchers(HttpMethod.POST, "/auth/login").permitAll()
                         .requestMatchers(HttpMethod.POST, "/auth/refresh").permitAll()
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(JwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
-                .exceptionHandling( c ->
-                        c.authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED))
-                );
+                .exceptionHandling( c -> {
+
+                    c.authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED));
+                    c.accessDeniedHandler((request, response, accessDeniedException) ->
+                                response.setStatus(HttpStatus.FORBIDDEN.value()));
+                });
         return http.build();
     }
 }
