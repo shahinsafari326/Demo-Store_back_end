@@ -20,37 +20,39 @@ public class JwtService {
     private final JwtConfig jwtConfig;
 
 
-    private String getToken(User user, long tokenExpiration) {
+    private Jwt getToken(User user, long tokenExpiration) {
         long expirationTime = System.currentTimeMillis() + (tokenExpiration * 1000);
-        return Jwts.builder()
+
+        var claimsBuilder =  Jwts.claims()
                 .subject(user.getId().toString())
-                .claim("name", user.getName())
-                .claim("email", user.getEmail())
-                .claim("role", user.getRole())
+                .add("role", user.getRole().toString())
+                .add("email", user.getEmail())
+                .add("name", user.getName())
                 .issuedAt(new Date())
                 .expiration(new Date(expirationTime))
-                .signWith(jwtConfig.getSecretKey())
-                .compact();
+                .build();
+        return new Jwt(claimsBuilder, jwtConfig.getSecretKey());
     }
 
-    public String generateRefreshToken(User user) {
+    public Jwt generateRefreshToken(User user) {
         final long tokenExpiration = jwtConfig.getRefreshTokenExpiration();
         return getToken(user, tokenExpiration);
     }
 
-    public String generateAccessToken(User user) {
+    public Jwt generateAccessToken(User user) {
         final long tokenExpiration = jwtConfig.getAccessTokenExpiration();
         return getToken(user, tokenExpiration);
     }
 
-    public boolean validateToken(String token) {
-        try {
-            var claims = getClaims(token);
-            return claims.getExpiration().after(new Date());
-        } catch (JwtException e) {
-            return false;
-        }
 
+    public Jwt parseToken(String token) {
+        final Claims claims;
+        try {
+            claims = getClaims(token);
+            return new Jwt(claims, jwtConfig.getSecretKey());
+        }  catch (JwtException e) {
+            return null;
+        }
     }
 
     private Claims getClaims(String token) {
@@ -61,17 +63,8 @@ public class JwtService {
 
     }
 
-    /**
-     * Subject is id as added in generateToken method.
-     * @param token
-     * @return
-     */
-    public Long getUserIdFromToken(String token) {
-        return Long.valueOf(getClaims(token).getSubject()) ;
-    }
 
-    public Role getRoleFromToken(String token) {
-        return Role.valueOf(getClaims(token).get("role").toString()) ;
-    }
+
+
 
 }
